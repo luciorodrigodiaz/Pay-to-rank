@@ -1,6 +1,7 @@
 'use client'
 
-import { ExternalLink, Flame, Trophy, Award, Medal } from 'lucide-react'
+import { useState } from 'react'
+import { ExternalLink, Flame, Trophy, Award, Medal, Filter } from 'lucide-react'
 
 export interface EntryItem {
   id: string
@@ -17,7 +18,18 @@ interface LeaderboardTableProps {
   onOpenBidModal: (entry?: EntryItem) => void
 }
 
+const CATEGORIES = ['Todos', 'SaaS / AI', 'Newsletter', 'Design / Tools', 'DevTools', 'Creator / Portfolio']
+
+const formatARS = (value: number) =>
+  new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(value)
+
 export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTableProps) {
+  const [activeCategory, setActiveCategory] = useState('Todos')
+
+  const filteredEntries = activeCategory === 'Todos'
+    ? entries
+    : entries.filter((e) => e.category.toLowerCase() === activeCategory.toLowerCase())
+
   const getRankBadge = (index: number) => {
     switch (index) {
       case 0:
@@ -48,12 +60,12 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-4">
+    <div className="w-full max-w-5xl mx-auto space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
           <span>Ranking de Proyectos</span>
-          <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-700">
-            {entries.length} activos
+          <span className="text-xs bg-zinc-800 text-zinc-400 px-2.5 py-0.5 rounded-full border border-zinc-700">
+            {filteredEntries.length} visibles
           </span>
         </h2>
         <button
@@ -65,58 +77,79 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
         </button>
       </div>
 
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <Filter className="w-3.5 h-3.5 text-zinc-500 shrink-0 ml-1" />
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
+              activeCategory === cat
+                ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40 font-semibold'
+                : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl">
         <div className="divide-y divide-zinc-800/80">
-          {entries.map((entry, index) => {
-            const isFirst = index === 0
-            return (
-              <div
-                key={entry.id}
-                className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 md:p-5 gap-4 transition-all hover:bg-zinc-800/40 ${
-                  isFirst ? 'bg-gradient-to-r from-amber-500/10 via-transparent to-transparent' : ''
-                }`}
-              >
-                {/* Info Izquierda: Posición + Nombre + Tagline */}
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="shrink-0">{getRankBadge(index)}</div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <a
-                        href={`/r/${entry.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-bold text-white hover:text-amber-400 transition-colors flex items-center gap-1 text-base group"
-                      >
-                        <span className="truncate">{entry.title}</span>
-                        <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-                      </a>
-                      <span className="text-[11px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-700">
-                        {entry.category}
-                      </span>
+          {filteredEntries.length === 0 ? (
+            <div className="p-10 text-center text-zinc-500 text-sm">
+              No hay proyectos en esta categoría todavía. ¡Sé el primero en pujar!
+            </div>
+          ) : (
+            filteredEntries.map((entry, index) => {
+              const isFirst = index === 0 && activeCategory === 'Todos'
+              return (
+                <div
+                  key={entry.id}
+                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 md:p-5 gap-4 transition-all hover:bg-zinc-800/40 ${
+                    isFirst ? 'bg-gradient-to-r from-amber-500/10 via-transparent to-transparent' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="shrink-0">{getRankBadge(index)}</div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <a
+                          href={`/r/${entry.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-bold text-white hover:text-amber-400 transition-colors flex items-center gap-1 text-base group"
+                        >
+                          <span className="truncate">{entry.title}</span>
+                          <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                        </a>
+                        <span className="text-[11px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-700">
+                          {entry.category}
+                        </span>
+                      </div>
+                      <p className="text-zinc-400 text-xs md:text-sm truncate mt-0.5 max-w-lg">
+                        {entry.tagline}
+                      </p>
                     </div>
-                    <p className="text-zinc-400 text-xs md:text-sm truncate mt-0.5 max-w-lg">
-                      {entry.tagline}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Info Derecha: Clics + Bid Total + Botón Superar */}
-                <div className="flex items-center justify-between w-full sm:w-auto gap-4 shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-zinc-800">
-                  <div className="text-left sm:text-right">
-                    <p className="text-sm font-bold text-emerald-400">${entry.totalBid}</p>
-                    <p className="text-[11px] text-zinc-500">{entry.clicks} clics</p>
                   </div>
 
-                  <button
-                    onClick={() => onOpenBidModal(entry)}
-                    className="bg-zinc-800 hover:bg-zinc-700 hover:text-amber-400 text-zinc-300 font-semibold px-3 py-1.5 rounded-lg text-xs border border-zinc-700 transition-all hover:scale-105 active:scale-95"
-                  >
-                    Superar puesto
-                  </button>
+                  <div className="flex items-center justify-between w-full sm:w-auto gap-4 shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-zinc-800">
+                    <div className="text-left sm:text-right">
+                      <p className="text-sm font-bold text-emerald-400">${formatARS(entry.totalBid)} ARS</p>
+                      <p className="text-[11px] text-zinc-500">{formatARS(entry.clicks)} clics</p>
+                    </div>
+
+                    <button
+                      onClick={() => onOpenBidModal(entry)}
+                      className="bg-zinc-800 hover:bg-zinc-700 hover:text-amber-400 text-zinc-300 font-semibold px-3 py-1.5 rounded-lg text-xs border border-zinc-700 transition-all hover:scale-105 active:scale-95"
+                    >
+                      Superar puesto
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })
+          )}
         </div>
       </div>
     </div>

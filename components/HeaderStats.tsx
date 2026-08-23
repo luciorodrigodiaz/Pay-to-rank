@@ -1,3 +1,6 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import { Trophy, DollarSign, MousePointerClick, Flame } from 'lucide-react'
 
 interface HeaderStatsProps {
@@ -7,20 +10,44 @@ interface HeaderStatsProps {
   totalClicks: number
 }
 
+// Formateador estándar para evitar discrepancias de hidratación
+const formatARS = (value: number) =>
+  new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(value)
+
 export function HeaderStats({
   totalRaised,
   topEntryTitle,
   topBid,
   totalClicks,
 }: HeaderStatsProps) {
+  const [onlineCount, setOnlineCount] = useState(19)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOnlineCount((prev) => {
+        const delta = Math.floor(Math.random() * 3) - 1
+        return Math.min(Math.max(prev + delta, 12), 34)
+      })
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div className="w-full max-w-5xl mx-auto mb-10">
       {/* Título Principal */}
       <div className="text-center space-y-4 mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-semibold uppercase tracking-wider">
-          <Flame className="w-4 h-4 animate-pulse" />
-          Mercado de Atención en Tiempo Real
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-semibold">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span className="text-zinc-300 font-medium">{onlineCount} personas mirando ahora</span>
+          <span className="text-zinc-600">|</span>
+          <span className="text-amber-400 font-bold flex items-center gap-1">
+            <Flame className="w-3.5 h-3.5" /> Subasta en Vivo
+          </span>
         </div>
+
         <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white">
           Paga para estar en el <span className="text-amber-400 underline decoration-amber-400/40">#1</span>
         </h1>
@@ -37,7 +64,7 @@ export function HeaderStats({
           </div>
           <div>
             <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Total Recaudado</p>
-            <p className="text-2xl font-bold text-white">${totalRaised.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-white">${formatARS(totalRaised)} ARS</p>
           </div>
         </div>
 
@@ -48,7 +75,7 @@ export function HeaderStats({
           <div className="truncate">
             <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Líder Actual (#1)</p>
             <p className="text-xl font-bold text-white truncate">{topEntryTitle || 'Nadie aún'}</p>
-            <p className="text-xs text-amber-400 font-semibold">$${topBid.toLocaleString()} ARS</p>
+            <p className="text-xs text-amber-400 font-semibold">${formatARS(topBid)} ARS</p>
           </div>
         </div>
 
@@ -58,7 +85,7 @@ export function HeaderStats({
           </div>
           <div>
             <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Clics Entregados</p>
-            <p className="text-2xl font-bold text-white">{totalClicks.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-white">{formatARS(totalClicks)}</p>
           </div>
         </div>
       </div>
