@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         const amount = Number(metadata.amount || payment.transaction_amount)
         const targetEntryId = metadata.target_entry_id
 
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
           let entry
 
           if (targetEntryId) {

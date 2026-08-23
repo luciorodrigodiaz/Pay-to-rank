@@ -50,27 +50,27 @@ export default async function HomePage({ searchParams }: SearchParamsProps) {
     }
   }
 
-  // Consultar registros
-  const entries = await prisma.entry.findMany({
+  // Consultar registros tipados
+  const entries: any[] = await prisma.entry.findMany({
     where: { status: 'active' },
     orderBy: { totalBid: 'desc' },
   })
 
-  const rawRecentBids = await prisma.bid.findMany({
+  const rawRecentBids: any[] = await prisma.bid.findMany({
     take: 3,
     orderBy: { createdAt: 'desc' },
     include: { entry: true },
   })
 
-  const recentBids = rawRecentBids.map((bid) => ({
+  const recentBids = rawRecentBids.map((bid: any) => ({
     id: bid.id,
     amount: bid.amount,
     createdAt: bid.createdAt,
-    entryTitle: bid.entry.title,
+    entryTitle: bid.entry?.title || 'Proyecto Anónimo',
   }))
 
-  const totalRaised = entries.reduce((acc, curr) => acc + curr.totalBid, 0)
-  const totalClicks = entries.reduce((acc, curr) => acc + curr.clicks, 0)
+  const totalRaised = entries.reduce((acc: number, curr: any) => acc + curr.totalBid, 0)
+  const totalClicks = entries.reduce((acc: number, curr: any) => acc + curr.clicks, 0)
   const topEntry = entries[0]
 
   return (
