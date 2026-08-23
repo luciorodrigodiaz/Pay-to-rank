@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/payment'
+import { mpPreference } from '@/lib/payment'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { title, tagline, url, category, amount, email, targetEntryId } = body
 
-    // Validación básica de campos
     if (!title || !url || !amount || Number(amount) < 1) {
       return NextResponse.json(
-        { error: 'Monto o campos inválidos' },
+        { error: 'Monto o campos obligatorios incompletos' },
         { status: 400 }
       )
     }
 
     const host = request.headers.get('origin') || 'http://localhost:3000'
 
-    // Si no hay clave real configurada aún, devolvemos un simulador para desarrollo
-    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes('mock')) {
+    // Modo simulador si no hay Access Token configurado aún
+    if (!process.env.MP_ACCESS_TOKEN || process.env.MP_ACCESS_TOKEN.includes('mock')) {
       return NextResponse.json({
         url: `${host}/?payment_success=true&simulated=true&title=${encodeURIComponent(
           title
@@ -27,42 +26,48 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Crear la sesión real de Stripe Checkout
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `Puja por posición: ${title}`,
-              description: tagline || 'Visibilidad en Pay-to-Rank Leaderboard',
-            },
-            unit_amount: Math.round(Number(amount) * 100), // Stripe maneja centavos
+    // Crear la Preferencia real en Mercado Pago
+    const preference = await mpPreference.create({
+      body: {
+        items: [
+          {
+            id: 'pay-to-rank-bid',
+            title: `Puja por posición: ${title}`,
+            description: tagline || 'Visibilidad en Leaderboard',
+            quantity: 1,
+            unit_price: Number(amount),
+            currency_id: 'ARS', // Pesos Argentinos
           },
-          quantity: 1,
+        ],
+        payer: {
+          email: email,
         },
-      ],
-      mode: 'payment',
-      customer_email: email,
-      success_url: `${host}/?payment_success=true`,
-      cancel_url: `${host}/?payment_cancelled=true`,
-      metadata: {
-        title,
-        tagline,
-        url,
-        category,
-        amount: String(amount),
-        email,
-        targetEntryId: targetEntryId || '',
+        back_urls: {
+          success: `${host}/?payment_success=true`,
+          failure: `${host}/?payment_cancelled=true`,
+          pending: `${host}/?payment_pending=true`,
+        },
+        auto_return: 'approved',
+        metadata: {
+          title,
+          tagline,
+          url,
+          category,
+          amount: Number(amount),
+          email,
+          target_entry_id: targetEntryId || '',
+        },
+        notification_url: `${host}/api/webhooks`,
       },
     })
 
-    return NextResponse.json({ url: session.url })
+    // Retorna la URL de checkout (init_point para producción / sandbox_init_point para pruebas)
+    const checkoutUrl = preference.init_point || preference.sandbox_init_point
+    return NextResponse.json({ url: checkoutUrl })
   } catch (error: any) {
-    console.error('Error en /api/checkout:', error)
+    console.error('Error al generar Checkout de Mercado Pago:', error)
     return NextResponse.json(
-      { error: error.message || 'Error al procesar el checkout' },
+      { error: error.message || 'Error al procesar con Mercado Pago' },
       { status: 500 }
     )
   }

@@ -48,7 +48,7 @@ export function HeaderStats({
           <div className="truncate">
             <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Líder Actual (#1)</p>
             <p className="text-xl font-bold text-white truncate">{topEntryTitle || 'Nadie aún'}</p>
-            <p className="text-xs text-amber-400 font-semibold">${topBid} USD</p>
+            <p className="text-xs text-amber-400 font-semibold">$${topBid.toLocaleString()} ARS</p>
           </div>
         </div>
 

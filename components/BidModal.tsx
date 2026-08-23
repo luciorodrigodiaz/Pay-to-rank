@@ -28,7 +28,7 @@ export function BidModal({ isOpen, onClose, targetEntry, topBid }: BidModalProps
       setTagline(targetEntry.tagline)
       setCategory(targetEntry.category)
       // Para superar un puesto existente, sugerimos el total del puesto + $5
-      setAmount(targetEntry.totalBid + 5)
+      setAmount(targetEntry.totalBid + 1000)
     } else {
       setTitle('')
       setTagline('')
@@ -91,8 +91,8 @@ const handleSubmit = async (e: React.FormEvent) => {
               </h3>
               <p className="text-zinc-400 text-xs">
                 {targetEntry 
-                  ? `Posición actual: $${targetEntry.totalBid} USD`
-                  : `El puesto #1 actual está en $${topBid} USD`}
+                  ? `Posición actual: $${targetEntry.totalBid} ARS`
+                  : `El puesto #1 actual está en $${topBid} ARS`}
               </p>
             </div>
           </div>
@@ -186,7 +186,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           <div className="pt-2">
             <div className="flex justify-between items-center mb-1.5">
               <label className="text-xs font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" /> Monto de la Puja (USD) *
+                <Sparkles className="w-3.5 h-3.5" /> Monto de la Puja (ARS) *
               </label>
               <span className="text-xs text-zinc-400">Min. sugerido: ${targetEntry ? targetEntry.totalBid + 1 : topBid + 1}</span>
             </div>
@@ -209,7 +209,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             disabled={loading}
             className="w-full mt-4 bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black py-3 px-4 rounded-xl transition-all shadow-[0_0_25px_rgba(251,191,36,0.3)] hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {loading ? 'Procesando...' : `Asegurar Puesto por $${amount} USD`}
+            {loading ? 'Procesando...' : `Asegurar Puesto por $${amount} ARS`}
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
