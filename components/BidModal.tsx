@@ -40,19 +40,39 @@ export function BidModal({ isOpen, onClose, targetEntry, topBid }: BidModalProps
 
   if (!isOpen) return null
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
-    // Aquí llamaremos a la API de Checkout en el siguiente paso
-    console.log('Datos de la puja:', { title, tagline, url, category, amount, email })
-    
-    // Simulamos un breve retardo
-    setTimeout(() => {
-      alert(`¡Listo! En el siguiente paso integraremos el pago de $${amount} USD.`)
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          tagline,
+          url,
+          category,
+          amount,
+          email,
+          targetEntryId: targetEntry?.id,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (data.url) {
+        // Redirigir a la pantalla de pago de Stripe
+        window.location.href = data.url
+      } else {
+        alert(data.error || 'Error al iniciar checkout')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Error de conexión con el servidor')
+    } finally {
       setLoading(false)
-      onClose()
-    }, 800)
+    }
   }
 
   return (
