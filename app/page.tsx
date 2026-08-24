@@ -74,7 +74,7 @@ export default async function HomePage({ searchParams }: SearchParamsProps) {
   const topEntry = entries[0]
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-100 px-4 py-12 md:py-20 selection:bg-amber-400 selection:text-zinc-950">
+    <main className="min-h-screen bg-[#F8F9FA] text-slate-900 px-4 py-12 md:py-20 selection:bg-amber-100 selection:text-amber-900">
       <ConfettiEffect trigger={isSuccess} />
       <div className="max-w-5xl mx-auto space-y-10">
         <HeaderStats

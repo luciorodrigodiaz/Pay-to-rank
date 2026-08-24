@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ExternalLink, Flame, Trophy, Award, Medal, Filter } from 'lucide-react'
+import { ExternalLink, Trophy, Award, Medal, MapPin, Building2, Sparkles } from 'lucide-react'
 
 export interface EntryItem {
   id: string
@@ -18,7 +18,16 @@ interface LeaderboardTableProps {
   onOpenBidModal: (entry?: EntryItem) => void
 }
 
-const CATEGORIES = ['Todos', 'SaaS / AI', 'Newsletter', 'Design / Tools', 'DevTools', 'Creator / Portfolio']
+const BARRIOS_ZONAS = [
+  'Todos',
+  'Puerto Madero',
+  'Palermo',
+  'Belgrano',
+  'Recoleta',
+  'Caballito',
+  'Zona Norte GBA',
+  'Preventas de Pozo',
+]
 
 const formatARS = (value: number) =>
   new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(value)
@@ -34,25 +43,25 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
     switch (index) {
       case 0:
         return (
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 font-black text-sm shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+          <div className="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white font-black text-sm shadow-md shadow-amber-500/20 border border-amber-300">
             <Trophy className="w-4 h-4" />
           </div>
         )
       case 1:
         return (
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-300/20 text-slate-200 border border-slate-300/40 font-bold text-sm">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300 shadow-sm">
             <Award className="w-4 h-4" />
           </div>
         )
       case 2:
         return (
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-700/20 text-amber-600 border border-amber-700/40 font-bold text-sm">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 text-amber-800 font-bold text-xs border border-amber-200 shadow-sm">
             <Medal className="w-4 h-4" />
           </div>
         )
       default:
         return (
-          <span className="text-zinc-500 font-mono font-bold text-sm pl-2">
+          <span className="text-slate-400 font-mono font-bold text-sm pl-2">
             #{index + 1}
           </span>
         )
@@ -61,44 +70,57 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-4">
+      {/* Cabecera de la tabla */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <span>Ranking de Proyectos</span>
-          <span className="text-xs bg-zinc-800 text-zinc-400 px-2.5 py-0.5 rounded-full border border-zinc-700">
-            {filteredEntries.length} visibles
-          </span>
-        </h2>
+        <div>
+          <h2 
+            className="text-2xl font-bold text-slate-900 flex items-center gap-2"
+            style={{ fontFamily: 'var(--font-playfair), serif' }}
+          >
+            <span>Posiciones de Visibilidad</span>
+            <span className="text-xs font-sans font-semibold bg-slate-200 text-slate-700 px-2.5 py-0.5 rounded-full">
+              {filteredEntries.length} activos
+            </span>
+          </h2>
+          <p className="text-slate-500 text-xs mt-0.5">
+            Ordenado estrictamente por inversión publicitaria acumulada en la plataforma.
+          </p>
+        </div>
+
         <button
           onClick={() => onOpenBidModal()}
-          className="bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold px-4 py-2 rounded-lg text-sm transition-all shadow-[0_0_20px_rgba(251,191,36,0.2)] hover:scale-105 active:scale-95 flex items-center gap-1.5"
+          className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2"
         >
-          <Flame className="w-4 h-4 fill-zinc-950" />
-          Pujar por el #1
+          <Sparkles className="w-4 h-4 text-amber-400" />
+          Pujar por el Puesto #1
         </button>
       </div>
 
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-        <Filter className="w-3.5 h-3.5 text-zinc-500 shrink-0 ml-1" />
-        {CATEGORIES.map((cat) => (
+      {/* Selector de Barrios / Zonas */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none pt-1">
+        <MapPin className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+        {BARRIOS_ZONAS.map((barrio) => (
           <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={`text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
-              activeCategory === cat
-                ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40 font-semibold'
-                : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
+            key={barrio}
+            onClick={() => setActiveCategory(barrio)}
+            className={`text-xs px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all font-medium ${
+              activeCategory === barrio
+                ? 'bg-slate-900 text-white shadow-sm'
+                : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300'
             }`}
           >
-            {cat}
+            {barrio}
           </button>
         ))}
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl">
-        <div className="divide-y divide-zinc-800/80">
+      {/* Tabla Estilo Luxury */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm">
+        <div className="divide-y divide-slate-100">
           {filteredEntries.length === 0 ? (
-            <div className="p-10 text-center text-zinc-500 text-sm">
-              No hay proyectos en esta categoría todavía. ¡Sé el primero en pujar!
+            <div className="p-12 text-center text-slate-400 text-sm">
+              <Building2 className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+              No hay inmobiliarias o desarrollos registrados en esta zona aún.
             </div>
           ) : (
             filteredEntries.map((entry, index) => {
@@ -106,42 +128,45 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
               return (
                 <div
                   key={entry.id}
-                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 md:p-5 gap-4 transition-all hover:bg-zinc-800/40 ${
-                    isFirst ? 'bg-gradient-to-r from-amber-500/10 via-transparent to-transparent' : ''
+                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 md:p-6 gap-4 transition-all hover:bg-slate-50/80 ${
+                    isFirst ? 'bg-amber-50/30 border-l-4 border-l-amber-500' : ''
                   }`}
                 >
+                  {/* Izquierda: Posición + Nombre + Tagline + Barrio */}
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="shrink-0">{getRankBadge(index)}</div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex items-center gap-2.5 flex-wrap">
                         <a
                           href={`/r/${entry.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-bold text-white hover:text-amber-400 transition-colors flex items-center gap-1 text-base group"
+                          className="font-bold text-slate-900 hover:text-amber-700 transition-colors flex items-center gap-1.5 text-base group"
                         >
                           <span className="truncate">{entry.title}</span>
-                          <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                          <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                         </a>
-                        <span className="text-[11px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-700">
+                        <span className="text-[11px] font-semibold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full border border-slate-200 flex items-center gap-1">
+                          <MapPin className="w-2.5 h-2.5 text-slate-500" />
                           {entry.category}
                         </span>
                       </div>
-                      <p className="text-zinc-400 text-xs md:text-sm truncate mt-0.5 max-w-lg">
+                      <p className="text-slate-600 text-xs md:text-sm truncate mt-1 max-w-xl">
                         {entry.tagline}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between w-full sm:w-auto gap-4 shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-zinc-800">
+                  {/* Derecha: Inversión + Clics + Botón Superar */}
+                  <div className="flex items-center justify-between w-full sm:w-auto gap-4 shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
                     <div className="text-left sm:text-right">
-                      <p className="text-sm font-bold text-emerald-400">${formatARS(entry.totalBid)} ARS</p>
-                      <p className="text-[11px] text-zinc-500">{formatARS(entry.clicks)} clics</p>
+                      <p className="text-base font-black text-slate-900">${formatARS(entry.totalBid)} ARS</p>
+                      <p className="text-[11px] font-medium text-slate-500">{formatARS(entry.clicks)} contactos directos</p>
                     </div>
 
                     <button
                       onClick={() => onOpenBidModal(entry)}
-                      className="bg-zinc-800 hover:bg-zinc-700 hover:text-amber-400 text-zinc-300 font-semibold px-3 py-1.5 rounded-lg text-xs border border-zinc-700 transition-all hover:scale-105 active:scale-95"
+                      className="bg-white hover:bg-slate-100 hover:text-slate-900 text-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs border border-slate-300 shadow-sm transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
                     >
                       Superar puesto
                     </button>

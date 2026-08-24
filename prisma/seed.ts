@@ -1,59 +1,73 @@
 import { prisma } from '../lib/db/prisma'
 
 async function main() {
-  // Limpiar registros previos
   await prisma.bid.deleteMany()
   await prisma.entry.deleteMany()
 
-  // 1. Primer puesto
+  // 1. Puesto #1: Desarrollo de Lujo en Puerto Madero
   await prisma.entry.create({
     data: {
-      title: 'DevJobs AI',
-      tagline: 'Encuentra trabajo remoto en tech con inteligencia artificial',
-      url: 'https://ejemplo.com/devjobs',
-      category: 'AI / Tech',
-      totalBid: 150.0,
-      clicks: 342,
+      title: 'Madero Harbour Residences',
+      tagline: 'Departamentos premium de 2 a 5 ambientes con vista al río y amenities de hotel',
+      url: 'https://ejemplo.com/madero-harbour',
+      category: 'Puerto Madero',
+      totalBid: 450000.0,
+      clicks: 840,
       bids: {
         create: [
-          { amount: 50.0, payerEmail: 'founder@devjobs.ai' },
-          { amount: 100.0, payerEmail: 'founder@devjobs.ai' },
+          { amount: 200000.0, payerEmail: 'ventas@maderoharbour.com' },
+          { amount: 250000.0, payerEmail: 'ventas@maderoharbour.com' },
         ],
       },
     },
   })
 
-  // 2. Segundo puesto
+  // 2. Puesto #2: Inmobiliaria Top en Palermo & Belgrano
   await prisma.entry.create({
     data: {
-      title: 'Indie Builder Newsletter',
-      tagline: 'Aprende a crear micro-SaaS rentables cada semana',
-      url: 'https://ejemplo.com/newsletter',
-      category: 'Newsletter',
-      totalBid: 95.0,
-      clicks: 210,
+      title: 'Achával & Asociados Propiedades',
+      tagline: 'Líderes en tasaciones y comercialización de propiedades exclusivas en Palermo Chico',
+      url: 'https://ejemplo.com/achaval',
+      category: 'Palermo',
+      totalBid: 280000.0,
+      clicks: 530,
       bids: {
-        create: [{ amount: 95.0, payerEmail: 'lucas@indiebuilder.com' }],
+        create: [{ amount: 280000.0, payerEmail: 'contacto@achavalprop.com' }],
       },
     },
   })
 
-  // 3. Tercer puesto
+  // 3. Puesto #3: Preventa de Pozo en Belgrano
   await prisma.entry.create({
     data: {
-      title: 'Iconos Pro Studio',
-      tagline: 'Más de 5,000 vectores e iconos libres de regalías',
-      url: 'https://ejemplo.com/iconos',
-      category: 'Design',
-      totalBid: 40.0,
-      clicks: 89,
+      title: 'Torre Belgrano Grand Studio',
+      tagline: 'Emprendimiento en pozo ideal renta temporaria. Financiación en 36 cuotas en pesos',
+      url: 'https://ejemplo.com/belgranogrand',
+      category: 'Belgrano',
+      totalBid: 190000.0,
+      clicks: 310,
       bids: {
-        create: [{ amount: 40.0, payerEmail: 'design@iconospro.com' }],
+        create: [{ amount: 190000.0, payerEmail: 'desarrollos@belgranogrand.com' }],
       },
     },
   })
 
-  console.log('🌱 Seed completado exitosamente!')
+  // 4. Puesto #4: Zona Norte / Nordelta
+  await prisma.entry.create({
+    data: {
+      title: 'Nordelta Waterfront Mansions',
+      tagline: 'Casas sobre la laguna con amarra propia en los barrios más exclusivos de Tigre',
+      url: 'https://ejemplo.com/nordelta-waterfront',
+      category: 'Zona Norte GBA',
+      totalBid: 120000.0,
+      clicks: 215,
+      bids: {
+        create: [{ amount: 120000.0, payerEmail: 'nordelta@premiumrealty.com' }],
+      },
+    },
+  })
+
+  console.log('🌱 Seed inmobiliario completado exitosamente!')
 }
 
 main()
