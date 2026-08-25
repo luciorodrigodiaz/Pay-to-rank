@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ExternalLink, Trophy, Award, Medal, MapPin, Building2, Sparkles } from 'lucide-react'
+import { ExternalLink, Trophy, Award, Medal, MapPin, Building2, Flame, ArrowUpRight } from 'lucide-react'
 
 export interface EntryItem {
   id: string
@@ -39,6 +39,8 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
     ? entries
     : entries.filter((e) => e.category.toLowerCase() === activeCategory.toLowerCase())
 
+  const topLeaderBid = entries[0]?.totalBid || 0
+
   const getRankBadge = (index: number) => {
     switch (index) {
       case 0:
@@ -49,13 +51,13 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
         )
       case 1:
         return (
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300 shadow-sm">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300">
             <Award className="w-4 h-4" />
           </div>
         )
       case 2:
         return (
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 text-amber-800 font-bold text-xs border border-amber-200 shadow-sm">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 text-amber-800 font-bold text-xs border border-amber-200">
             <Medal className="w-4 h-4" />
           </div>
         )
@@ -77,13 +79,13 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
             className="text-2xl font-bold text-slate-900 flex items-center gap-2"
             style={{ fontFamily: 'var(--font-playfair), serif' }}
           >
-            <span>Posiciones de Visibilidad</span>
+            <span>Tabla de Clasificación Pública</span>
             <span className="text-xs font-sans font-semibold bg-slate-200 text-slate-700 px-2.5 py-0.5 rounded-full">
-              {filteredEntries.length} activos
+              {filteredEntries.length} compitiendo
             </span>
           </h2>
           <p className="text-slate-500 text-xs mt-0.5">
-            Ordenado estrictamente por inversión publicitaria acumulada en la plataforma.
+            Superá al líder actual para capturar el 100% de la visibilidad principal.
           </p>
         </div>
 
@@ -91,8 +93,8 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
           onClick={() => onOpenBidModal()}
           className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2"
         >
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          Pujar por el Puesto #1
+          <Flame className="w-4 h-4 fill-amber-400 text-amber-400" />
+          Desbancar al #1
         </button>
       </div>
 
@@ -114,13 +116,13 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
         ))}
       </div>
 
-      {/* Tabla Estilo Luxury */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm">
+      {/* Lista de Posiciones */}
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
         <div className="divide-y divide-slate-100">
           {filteredEntries.length === 0 ? (
             <div className="p-12 text-center text-slate-400 text-sm">
               <Building2 className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
-              No hay inmobiliarias o desarrollos registrados en esta zona aún.
+              No hay proyectos en esta zona aún. ¡Sé el primero en posicionarte!
             </div>
           ) : (
             filteredEntries.map((entry, index) => {
@@ -132,7 +134,7 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
                     isFirst ? 'bg-amber-50/30 border-l-4 border-l-amber-500' : ''
                   }`}
                 >
-                  {/* Izquierda: Posición + Nombre + Tagline + Barrio */}
+                  {/* Info Izquierda */}
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="shrink-0">{getRankBadge(index)}</div>
                     <div className="min-w-0">
@@ -141,7 +143,7 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
                           href={`/r/${entry.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-bold text-slate-900 hover:text-amber-700 transition-colors flex items-center gap-1.5 text-base group"
+                          className="font-bold text-slate-900 hover:text-amber-700 transition-colors flex items-center gap-1 text-base group"
                         >
                           <span className="truncate">{entry.title}</span>
                           <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
@@ -150,6 +152,11 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
                           <MapPin className="w-2.5 h-2.5 text-slate-500" />
                           {entry.category}
                         </span>
+                        {isFirst && (
+                          <span className="text-[11px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-300">
+                            👑 Líder de la Subasta
+                          </span>
+                        )}
                       </div>
                       <p className="text-slate-600 text-xs md:text-sm truncate mt-1 max-w-xl">
                         {entry.tagline}
@@ -157,18 +164,19 @@ export function LeaderboardTable({ entries, onOpenBidModal }: LeaderboardTablePr
                     </div>
                   </div>
 
-                  {/* Derecha: Inversión + Clics + Botón Superar */}
+                  {/* Info Derecha */}
                   <div className="flex items-center justify-between w-full sm:w-auto gap-4 shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
                     <div className="text-left sm:text-right">
                       <p className="text-base font-black text-slate-900">${formatARS(entry.totalBid)} ARS</p>
-                      <p className="text-[11px] font-medium text-slate-500">{formatARS(entry.clicks)} contactos directos</p>
+                      <p className="text-[11px] font-medium text-slate-500">{formatARS(entry.clicks)} clics directos</p>
                     </div>
 
                     <button
                       onClick={() => onOpenBidModal(entry)}
-                      className="bg-white hover:bg-slate-100 hover:text-slate-900 text-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs border border-slate-300 shadow-sm transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                      className="bg-white hover:bg-slate-900 hover:text-white text-slate-800 font-bold px-4 py-2 rounded-xl text-xs border border-slate-300 shadow-sm transition-all hover:scale-105 active:scale-95 whitespace-nowrap flex items-center gap-1"
                     >
-                      Superar puesto
+                      <span>Superar</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
