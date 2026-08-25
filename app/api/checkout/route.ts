@@ -1,61 +1,106 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { mpPreference } from '@/lib/payment'
+import { mpPayment } from '@/lib/payment'
+import { prisma } from '@/lib/db/prisma'
+import { sendOutbidNotificationEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { title, tagline, url, category, amount, email, targetEntryId } = body
+    const { searchParams } = new URL(request.url)
+    const topic = searchParams.get('topic') || searchParams.get('type')
+    const id = searchParams.get('id') || searchParams.get('data.id')
 
-    if (!title || !url || !amount || Number(amount) < 500) {
-      return NextResponse.json(
-        { error: 'El monto mínimo de inversión es $500 ARS y todos los campos son obligatorios.' },
-        { status: 400 }
-      )
+    let paymentId = id
+
+    if (!paymentId) {
+      try {
+        const body = await request.json()
+        paymentId = body?.data?.id || body?.id
+      } catch {}
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://pay-to-rank-beige.vercel.app'
+    if (!paymentId) {
+      return NextResponse.json({ message: 'No payment id provided' }, { status: 200 })
+    }
 
-    const preference = await mpPreference.create({
-      body: {
-        items: [
-          {
-            id: 'inmorank-bid',
-            title: `Posicionamiento en InmoRank BA: ${title}`,
-            description: tagline || 'Visibilidad en el ranking inmobiliario de Buenos Aires',
-            quantity: 1,
-            unit_price: Number(amount),
-            currency_id: 'ARS',
-          },
-        ],
-        payer: {
-          email: email,
-        },
-        back_urls: {
-          success: `${baseUrl}/?payment_success=true`,
-          failure: `${baseUrl}/?payment_cancelled=true`,
-          pending: `${baseUrl}/?payment_pending=true`,
-        },
-        auto_return: 'approved',
-        metadata: {
-          title,
-          tagline,
-          url,
-          category,
-          amount: Number(amount),
-          email,
-          target_entry_id: targetEntryId || '',
-        },
-        notification_url: `${baseUrl}/api/webhooks`,
-      },
-    })
+    const payment = await mpPayment.get({ id: paymentId })
 
-    const checkoutUrl = preference.init_point || preference.sandbox_init_point
-    return NextResponse.json({ url: checkoutUrl })
+    if (payment && payment.status === 'approved') {
+      const metadata = payment.metadata
+
+      if (metadata) {
+        const amount = Number(metadata.amount || payment.transaction_amount)
+        const targetEntryId = metadata.target_entry_id
+
+        // 1. Identificar al líder anterior antes de actualizar
+        const previousLeader = await prisma.entry.findFirst({
+          orderBy: { totalBid: 'desc' },
+          include: { bids: { take: 1, orderBy: { createdAt: 'desc' } } },
+        })
+
+        // 2. Ejecutar la transacción de actualización
+        await prisma.$transaction(async (tx: any) => {
+          let entry
+
+          if (targetEntryId) {
+            entry = await tx.entry.update({
+              where: { id: targetEntryId },
+              data: {
+                totalBid: { increment: amount },
+                title: metadata.title,
+                tagline: metadata.tagline,
+                category: metadata.category,
+              },
+            })
+          } else {
+            entry = await tx.entry.create({
+              data: {
+                title: metadata.title,
+                tagline: metadata.tagline,
+                url: metadata.url,
+                category: metadata.category,
+                totalBid: amount,
+              },
+            })
+          }
+
+          const existingBid = await tx.bid.findUnique({
+            where: { paymentIntentId: String(payment.id) },
+          })
+
+          if (!existingBid) {
+            await tx.bid.create({
+              data: {
+                entryId: entry.id,
+                amount: amount,
+                payerEmail: metadata.email || payment.payer?.email,
+                paymentIntentId: String(payment.id),
+                status: 'paid',
+              },
+            })
+          }
+        })
+
+        // 3. Disparar email al líder superado si perdió el #1
+        if (
+          previousLeader &&
+          previousLeader.title !== metadata.title &&
+          previousLeader.bids[0]?.payerEmail
+        ) {
+          await sendOutbidNotificationEmail({
+            toEmail: previousLeader.bids[0].payerEmail,
+            projectTitle: previousLeader.title,
+            newLeaderTitle: metadata.title,
+            newLeaderAmount: amount,
+          })
+        }
+
+        console.log(`✅ Pago aprobado por Mercado Pago: $${amount} ARS para ${metadata.title}`)
+      }
+    }
+
+    return NextResponse.json({ status: 'success' }, { status: 200 })
   } catch (error: any) {
-    console.error('Error al generar Checkout en InmoRank BA:', error)
-    return NextResponse.json(
-      { error: error.message || 'Error al conectar con Mercado Pago' },
-      { status: 500 }
-    )
+    console.error('Error procesando webhook de Mercado Pago:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
