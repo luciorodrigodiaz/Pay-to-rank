@@ -1,65 +1,93 @@
-import { prisma } from '../lib/db/prisma'
+import 'dotenv/config'
+import { createClient } from '@libsql/client'
+
+const client = createClient({
+  url: process.env.DATABASE_URL || 'file:./dev.db',
+  authToken: process.env.TURSO_AUTH_TOKEN,
+})
 
 async function main() {
-  await prisma.bid.deleteMany()
-  await prisma.entry.deleteMany()
+  console.log('🌱 Conectando y poblando Turso en la nube...')
 
-  // 1. Toribio Achaval
-  await prisma.entry.create({
-    data: {
-      title: 'Toribio Achaval Propiedades',
-      tagline: 'Comercializacion exclusiva de residencias premium y proyectos de lujo en CABA',
-      url: 'https://toribioachaval.com',
-      category: 'Recoleta',
-      totalBid: 350000.0,
-      clicks: 720,
-      bids: {
-        create: [
-          { amount: 150000.0, payerEmail: 'institucional@toribioachaval.com' },
-          { amount: 200000.0, payerEmail: 'institucional@toribioachaval.com' },
-        ],
-      },
-    },
+  // Limpiar tablas previas
+  await client.execute(`DELETE FROM "Bid";`)
+  await client.execute(`DELETE FROM "Entry";`)
+
+  const id1 = 'toribio-achaval-id'
+  const id2 = 'lj-ramos-id'
+  const id3 = 'lepore-propiedades-id'
+
+  // 1. Toribio Achával
+  await client.execute({
+    sql: `INSERT INTO "Entry" ("id", "title", "tagline", "url", "category", "totalBid", "clicks", "status") 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+    args: [
+      id1,
+      'Toribio Achával Propiedades',
+      'Comercialización exclusiva de residencias premium y proyectos de lujo en CABA',
+      'https://toribioachaval.com',
+      'Recoleta',
+      350000.0,
+      720,
+      'active',
+    ],
+  })
+
+  await client.execute({
+    sql: `INSERT INTO "Bid" ("id", "entryId", "amount", "paymentIntentId", "payerEmail", "status") 
+          VALUES (?, ?, ?, ?, ?, ?);`,
+    args: ['bid-1', id1, 350000.0, 'init_payment_1', 'institucional@toribioachaval.com', 'paid'],
   })
 
   // 2. L.J. Ramos
-  await prisma.entry.create({
-    data: {
-      title: 'L.J. Ramos Brokers Inmobiliarios',
-      tagline: 'Mas de 35 anos de liderazgo en propiedades residenciales y comerciales en CABA y GBA',
-      url: 'https://www.ljramos.com.ar',
-      category: 'Belgrano',
-      totalBid: 240000.0,
-      clicks: 510,
-      bids: {
-        create: [{ amount: 240000.0, payerEmail: 'contacto@ljramos.com.ar' }],
-      },
-    },
+  await client.execute({
+    sql: `INSERT INTO "Entry" ("id", "title", "tagline", "url", "category", "totalBid", "clicks", "status") 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+    args: [
+      id2,
+      'L.J. Ramos Brokers Inmobiliarios',
+      'Más de 35 años de liderazgo en propiedades residenciales y comerciales en CABA y GBA',
+      'https://www.ljramos.com.ar',
+      'Belgrano',
+      240000.0,
+      510,
+      'active',
+    ],
   })
 
-  // 3. Lepore
-  await prisma.entry.create({
-    data: {
-      title: 'Lepore Propiedades',
-      tagline: 'Especialistas en emprendimientos en pozo y oportunidades residenciales en Caballito y Palermo',
-      url: 'https://www.lepore.com.ar',
-      category: 'Caballito',
-      totalBid: 160000.0,
-      clicks: 385,
-      bids: {
-        create: [{ amount: 160000.0, payerEmail: 'ventas@lepore.com.ar' }],
-      },
-    },
+  await client.execute({
+    sql: `INSERT INTO "Bid" ("id", "entryId", "amount", "paymentIntentId", "payerEmail", "status") 
+          VALUES (?, ?, ?, ?, ?, ?);`,
+    args: ['bid-2', id2, 240000.0, 'init_payment_2', 'contacto@ljramos.com.ar', 'paid'],
   })
 
-  console.log('Seed completado exitosamente en Turso!')
+  // 3. Lépore
+  await client.execute({
+    sql: `INSERT INTO "Entry" ("id", "title", "tagline", "url", "category", "totalBid", "clicks", "status") 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+    args: [
+      id3,
+      'Lépore Propiedades',
+      'Especialistas en emprendimientos en pozo y oportunidades residenciales en Caballito y Palermo',
+      'https://www.lepore.com.ar',
+      'Caballito',
+      160000.0,
+      385,
+      'active',
+    ],
+  })
+
+  await client.execute({
+    sql: `INSERT INTO "Bid" ("id", "entryId", "amount", "paymentIntentId", "payerEmail", "status") 
+          VALUES (?, ?, ?, ?, ?, ?);`,
+    args: ['bid-3', id3, 160000.0, 'init_payment_3', 'ventas@lepore.com.ar', 'paid'],
+  })
+
+  console.log('✅ Base de datos poblada exitosamente en Turso!')
 }
 
 main()
   .catch((e) => {
-    console.error(e)
+    console.error('Error:', e)
     process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
   })
