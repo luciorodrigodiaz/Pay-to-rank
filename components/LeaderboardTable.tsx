@@ -27,6 +27,7 @@ const BARRIOS_ZONAS = [
   'Caballito',
   'Zona Norte GBA',
   'Preventas de Pozo',
+  'Alquileres Temporarios',
 ]
 
 const formatARS = (value: number) =>
