@@ -3,6 +3,7 @@ import { HeaderStats } from '@/components/HeaderStats'
 import { LeaderboardContainer } from '@/components/LeaderboardContainer'
 import { LiveFeed } from '@/components/LiveFeed'
 import { ConfettiEffect } from '@/components/ConfettiEffect'
+import { Building2, ShieldCheck, Mail } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,43 +15,7 @@ export default async function HomePage({ searchParams }: SearchParamsProps) {
   const params = await searchParams
   const isSuccess = params.payment_success === 'true'
 
-  // Procesar simulación en desarrollo
-  if (params.simulated === 'true' && params.title && params.amount) {
-    const title = String(params.title)
-    const amount = parseFloat(String(params.amount))
-    const url = String(params.url || 'https://google.com')
-    const tagline = String(params.tagline || 'Nuevo proyecto impulsado')
-    const category = String(params.category || 'SaaS / AI')
-    const email = String(params.email || 'dev@local.test')
-
-    const existingBid = await prisma.bid.findFirst({
-      where: { paymentIntentId: `sim_${title}_${amount}` },
-    })
-
-    if (!existingBid) {
-      const entry = await prisma.entry.create({
-        data: {
-          title,
-          tagline,
-          url,
-          category,
-          totalBid: amount,
-        },
-      })
-
-      await prisma.bid.create({
-        data: {
-          entryId: entry.id,
-          amount,
-          payerEmail: email,
-          paymentIntentId: `sim_${title}_${amount}`,
-          status: 'paid',
-        },
-      })
-    }
-  }
-
-  // Consultar registros tipados
+  // Consultar registros
   const entries: any[] = await prisma.entry.findMany({
     where: { status: 'active' },
     orderBy: { totalBid: 'desc' },
@@ -66,7 +31,7 @@ export default async function HomePage({ searchParams }: SearchParamsProps) {
     id: bid.id,
     amount: bid.amount,
     createdAt: bid.createdAt,
-    entryTitle: bid.entry?.title || 'Proyecto Anónimo',
+    entryTitle: bid.entry?.title || 'Proyecto Inmobiliario',
   }))
 
   const totalRaised = entries.reduce((acc: number, curr: any) => acc + curr.totalBid, 0)
@@ -74,9 +39,10 @@ export default async function HomePage({ searchParams }: SearchParamsProps) {
   const topEntry = entries[0]
 
   return (
-    <main className="min-h-screen bg-[#F8F9FA] text-slate-900 px-4 py-12 md:py-20 selection:bg-amber-100 selection:text-amber-900">
+    <main className="min-h-screen bg-[#F8F9FA] text-slate-900 px-4 py-12 md:py-20 selection:bg-amber-100 selection:text-amber-900 flex flex-col justify-between">
       <ConfettiEffect trigger={isSuccess} />
-      <div className="max-w-5xl mx-auto space-y-10">
+      
+      <div className="max-w-5xl mx-auto space-y-10 w-full">
         <HeaderStats
           totalRaised={totalRaised}
           topEntryTitle={topEntry?.title || ''}
@@ -91,6 +57,29 @@ export default async function HomePage({ searchParams }: SearchParamsProps) {
 
         <LiveFeed recentBids={recentBids} />
       </div>
+
+      {/* Footer Institucional */}
+      <footer className="w-full max-w-5xl mx-auto mt-20 pt-8 border-t border-slate-200 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <Building2 className="w-4 h-4 text-slate-700" />
+          <span className="font-bold text-slate-800">Top Inmobiliario Buenos Aires</span>
+          <span>© {new Date().getFullYear()}</span>
+        </div>
+
+        <div className="flex items-center gap-6 text-center sm:text-right">
+          <span className="flex items-center gap-1 text-slate-600">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            Pagos procesados de forma segura por Mercado Pago
+          </span>
+          <a
+            href="mailto:contacto@topinmobiliario.com"
+            className="hover:text-slate-900 transition-colors flex items-center gap-1 font-semibold text-slate-700"
+          >
+            <Mail className="w-3.5 h-3.5" />
+            Soporte & Consultas
+          </a>
+        </div>
+      </footer>
     </main>
   )
 }
