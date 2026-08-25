@@ -6,9 +6,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { title, tagline, url, category, amount, email, targetEntryId } = body
 
-    if (!title || !url || !amount || Number(amount) < 1000) {
+    if (!title || !url || !amount || Number(amount) < 500) {
       return NextResponse.json(
-        { error: 'El monto mínimo es $1.000 ARS y los campos son obligatorios.' },
+        { error: 'El monto mínimo de inversión es $500 ARS y todos los campos son obligatorios.' },
         { status: 400 }
       )
     }

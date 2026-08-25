@@ -41,12 +41,14 @@ export function BidModal({ isOpen, onClose, targetEntry, topBid }: BidModalProps
       setUrl(targetEntry.url)
       setTagline(targetEntry.tagline)
       setCategory(targetEntry.category)
-      setAmount(targetEntry.totalBid + 10000)
+      // Sugerimos superar el puesto por $500 ARS
+      setAmount(targetEntry.totalBid + 500)
     } else {
       setTitle('')
       setTagline('')
       setUrl('')
-      setAmount(Math.max(topBid + 10000, 50000))
+      // Para tomar el #1 global sugerimos topBid + $500 (mínimo $1.000 ARS)
+      setAmount(Math.max(topBid + 500, 1000))
     }
   }, [targetEntry, topBid, isOpen])
 
@@ -207,13 +209,14 @@ export function BidModal({ isOpen, onClose, targetEntry, topBid }: BidModalProps
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-black text-lg">$</span>
               <input
-                type="number"
-                min="1000"
-                required
-                value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
-                className="w-full bg-slate-50 border border-amber-300 rounded-2xl pl-8 pr-4 py-3.5 text-slate-900 text-xl font-black focus:outline-none focus:border-slate-900 focus:bg-white shadow-inner"
-              />
+              type="number"
+              min="500"
+              step="500"
+              required
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+              className="w-full bg-slate-50 border border-amber-300 rounded-2xl pl-8 pr-4 py-3.5 text-slate-900 text-xl font-black focus:outline-none focus:border-slate-900 focus:bg-white shadow-inner"
+            />
             </div>
           </div>
 
