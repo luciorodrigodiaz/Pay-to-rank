@@ -3,7 +3,7 @@ import { HeaderStats } from '@/components/HeaderStats'
 import { LeaderboardContainer } from '@/components/LeaderboardContainer'
 import { LiveFeed } from '@/components/LiveFeed'
 import { ConfettiEffect } from '@/components/ConfettiEffect'
-import { Building2, ShieldCheck, MessageCircle } from 'lucide-react'
+import { Building2, ShieldCheck, Mail } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,11 +58,11 @@ export default async function HomePage({ searchParams }: SearchParamsProps) {
         <LiveFeed recentBids={recentBids} />
       </div>
 
-      {/* Footer Institucional con enlace directo a WhatsApp/Contacto */}
+      {/* Footer Institucional InmoRank BA */}
       <footer className="w-full max-w-5xl mx-auto mt-20 pt-8 border-t border-slate-200 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Building2 className="w-4 h-4 text-slate-700" />
-          <span className="font-bold text-slate-800">Top Inmobiliario Buenos Aires</span>
+          <span className="font-bold text-slate-800">InmoRank BA</span>
           <span>© {new Date().getFullYear()}</span>
         </div>
 
@@ -72,13 +72,11 @@ export default async function HomePage({ searchParams }: SearchParamsProps) {
             Cobros oficiales procesados por Mercado Pago
           </span>
           <a
-            href="https://wa.me/5491100000000?text=Hola,%20tengo%20una%20consulta%20sobre%20Top%20Inmobiliario"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-emerald-700 transition-colors flex items-center gap-1 font-bold text-slate-700"
+            href="mailto:inmorankba@gmail.com?subject=Consulta%20Comercial%20-%20InmoRank%20BA"
+            className="hover:text-slate-900 transition-colors flex items-center gap-1 font-semibold text-slate-700"
           >
-            <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-            Contacto WhatsApp
+            <Mail className="w-3.5 h-3.5" />
+            inmorankba@gmail.com
           </a>
         </div>
       </footer>

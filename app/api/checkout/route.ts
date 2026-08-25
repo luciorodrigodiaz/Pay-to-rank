@@ -6,31 +6,21 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { title, tagline, url, category, amount, email, targetEntryId } = body
 
-    // 1. Validaciones estrictas
     if (!title || !url || !amount || Number(amount) < 1000) {
       return NextResponse.json(
-        { error: 'El monto mínimo de inversión es $1.000 ARS y todos los campos son obligatorios.' },
+        { error: 'El monto mínimo es $1.000 ARS y los campos son obligatorios.' },
         { status: 400 }
       )
     }
 
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      return NextResponse.json(
-        { error: 'La URL debe comenzar con http:// o https://' },
-        { status: 400 }
-      )
-    }
-
-    // Dominio base de producción
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://pay-to-rank-beige.vercel.app'
 
-    // 2. Crear la Preferencia real en Mercado Pago
     const preference = await mpPreference.create({
       body: {
         items: [
           {
-            id: 'top-inmobiliario-bid',
-            title: `Posicionamiento en Top Inmobiliario: ${title}`,
+            id: 'inmorank-bid',
+            title: `Posicionamiento en InmoRank BA: ${title}`,
             description: tagline || 'Visibilidad en el ranking inmobiliario de Buenos Aires',
             quantity: 1,
             unit_price: Number(amount),
@@ -62,9 +52,9 @@ export async function POST(request: NextRequest) {
     const checkoutUrl = preference.init_point || preference.sandbox_init_point
     return NextResponse.json({ url: checkoutUrl })
   } catch (error: any) {
-    console.error('Error al generar Checkout de Mercado Pago:', error)
+    console.error('Error al generar Checkout en InmoRank BA:', error)
     return NextResponse.json(
-      { error: error.message || 'Error al conectar con la pasarela de Mercado Pago' },
+      { error: error.message || 'Error al conectar con Mercado Pago' },
       { status: 500 }
     )
   }

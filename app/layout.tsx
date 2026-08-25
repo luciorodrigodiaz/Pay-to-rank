@@ -13,10 +13,10 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: 'Top Inmobiliario CABA | Ranking de Inmobiliarias y Desarrollos de Buenos Aires',
+  title: 'InmoRank BA | Ranking Inmobiliario y de Desarrollos de Buenos Aires',
   description: 'El ranking de visibilidad #1 para inmobiliarias, desarrolladoras y proyectos de pozo en CABA y GBA.',
   openGraph: {
-    title: 'Top Inmobiliario Buenos Aires | ¿Cuánto vale el puesto #1?',
+    title: 'InmoRank BA | ¿Quién lidera el mercado inmobiliario de Buenos Aires?',
     description: 'Compite por el primer lugar de visibilidad para captar compradores e inversores inmobiliarios.',
     type: 'website',
   },
