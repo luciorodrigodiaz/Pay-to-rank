@@ -3,7 +3,7 @@ import { HeaderStats } from '@/components/HeaderStats'
 import { LeaderboardContainer } from '@/components/LeaderboardContainer'
 import { LiveFeed } from '@/components/LiveFeed'
 import { ConfettiEffect } from '@/components/ConfettiEffect'
-import { Building2, ShieldCheck, Mail } from 'lucide-react'
+import { Building2, ShieldCheck, MessageCircle } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +15,7 @@ export default async function HomePage({ searchParams }: SearchParamsProps) {
   const params = await searchParams
   const isSuccess = params.payment_success === 'true'
 
-  // Consultar registros
+  // Consultar registros directamente de Turso
   const entries: any[] = await prisma.entry.findMany({
     where: { status: 'active' },
     orderBy: { totalBid: 'desc' },
@@ -58,7 +58,7 @@ export default async function HomePage({ searchParams }: SearchParamsProps) {
         <LiveFeed recentBids={recentBids} />
       </div>
 
-      {/* Footer Institucional */}
+      {/* Footer Institucional con enlace directo a WhatsApp/Contacto */}
       <footer className="w-full max-w-5xl mx-auto mt-20 pt-8 border-t border-slate-200 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Building2 className="w-4 h-4 text-slate-700" />
@@ -69,14 +69,16 @@ export default async function HomePage({ searchParams }: SearchParamsProps) {
         <div className="flex items-center gap-6 text-center sm:text-right">
           <span className="flex items-center gap-1 text-slate-600">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            Pagos procesados de forma segura por Mercado Pago
+            Cobros oficiales procesados por Mercado Pago
           </span>
           <a
-            href="mailto:contacto@topinmobiliario.com"
-            className="hover:text-slate-900 transition-colors flex items-center gap-1 font-semibold text-slate-700"
+            href="https://wa.me/5491100000000?text=Hola,%20tengo%20una%20consulta%20sobre%20Top%20Inmobiliario"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-emerald-700 transition-colors flex items-center gap-1 font-bold text-slate-700"
           >
-            <Mail className="w-3.5 h-3.5" />
-            Soporte & Consultas
+            <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+            Contacto WhatsApp
           </a>
         </div>
       </footer>
