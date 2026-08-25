@@ -1,15 +1,14 @@
 import { prisma } from '../lib/db/prisma'
 
 async function main() {
-  // Limpiar datos anteriores
   await prisma.bid.deleteMany()
   await prisma.entry.deleteMany()
 
-  // 1. Puesto #1: Toribio Achával (Líder en Lujo)
+  // 1. Toribio Achaval
   await prisma.entry.create({
     data: {
-      title: 'Toribio Achával Propiedades',
-      tagline: 'Comercialización exclusiva de residencias premium y proyectos de lujo en CABA',
+      title: 'Toribio Achaval Propiedades',
+      tagline: 'Comercializacion exclusiva de residencias premium y proyectos de lujo en CABA',
       url: 'https://toribioachaval.com',
       category: 'Recoleta',
       totalBid: 350000.0,
@@ -23,11 +22,11 @@ async function main() {
     },
   })
 
-  // 2. Puesto #2: L.J. Ramos Brokers
+  // 2. L.J. Ramos
   await prisma.entry.create({
     data: {
       title: 'L.J. Ramos Brokers Inmobiliarios',
-      tagline: 'Más de 35 años de liderazgo en propiedades residenciales y comerciales en CABA y GBA',
+      tagline: 'Mas de 35 anos de liderazgo en propiedades residenciales y comerciales en CABA y GBA',
       url: 'https://www.ljramos.com.ar',
       category: 'Belgrano',
       totalBid: 240000.0,
@@ -38,10 +37,10 @@ async function main() {
     },
   })
 
-  // 3. Puesto #3: Lépore Propiedades
+  // 3. Lepore
   await prisma.entry.create({
     data: {
-      title: 'Lépore Propiedades',
+      title: 'Lepore Propiedades',
       tagline: 'Especialistas en emprendimientos en pozo y oportunidades residenciales en Caballito y Palermo',
       url: 'https://www.lepore.com.ar',
       category: 'Caballito',
@@ -53,7 +52,7 @@ async function main() {
     },
   })
 
-  console.log('🌱 Base de datos actualizada con inmobiliarias reales de Buenos Aires!')
+  console.log('Seed completado exitosamente en Turso!')
 }
 
 main()
